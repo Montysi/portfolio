@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-scroll";
 import Introduction from "./pages/introduction";
@@ -6,13 +7,34 @@ import Projects from "./pages/projects";
 import Contact from "./pages/contact";
 
 function App() {
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const introductionSection = document.getElementById("introduction");
+      const introductionSectionBottom = introductionSection.offsetHeight;
+      const scrollPosition = window.scrollY;
+
+      if (scrollPosition >= introductionSectionBottom) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div>
-      {/* Navigation Menu */}
-      <Navbar>
-        <NavLink to="introduction" smooth={true} duration={500}>
-          Home
-        </NavLink>
+      <Section id="introduction">
+        <Introduction />
+      </Section>
+
+      <Navbar isSticky={isSticky}>
         <NavLink to="about" smooth={true} duration={500}>
           About
         </NavLink>
@@ -24,16 +46,14 @@ function App() {
         </NavLink>
       </Navbar>
 
-      {/* Sections */}
-      <Section id="introduction">
-        <Introduction />
-      </Section>
       <Section id="about">
         <About />
       </Section>
+
       <Section id="projects">
         <Projects />
       </Section>
+
       <Section id="contact">
         <Contact />
       </Section>
@@ -44,14 +64,17 @@ function App() {
 export default App;
 
 const Navbar = styled.nav`
-  position: fixed;
-  top: 0;
+  position: ${(props) => (props.isSticky ? "sticky" : "absolute")};
+  top: ${(props) =>
+    props.isSticky ? "0" : "100vh"}; 
   width: 100%;
   background: rgba(0, 0, 0, 0.8);
   padding: 10px;
   display: flex;
   justify-content: center;
   gap: 20px;
+  z-index: 10;
+  transition: none; 
 `;
 
 const NavLink = styled(Link)`
@@ -66,9 +89,9 @@ const NavLink = styled(Link)`
   }
 `;
 
-// Styled Section Wrapper
+
 const Section = styled.section`
-  height: 100vh; /* Full screen height */
+  height: 100vh; 
   display: flex;
   align-items: center;
   justify-content: center;
